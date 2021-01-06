@@ -1,0 +1,14 @@
+ - centralizar precisão de evoke dos tijolos
+ - fazer funcionar para tijolos/itens de outros formatos de colisão
+ - adicionar novos objetos além dos tijolos de formatos diferentes
+ - passar a ter uma variável de hold pro próximo item a cair
+ - preview do proximo bloco mostrando acima
+ - area vermelha pra matar tijolos/itens que pararem dentro dela
+ - blocos de apoio pré posicionados para servir de plataforma
+ - mover tela pra cima conforme sobe a torre
+ - timer ?
+ - níveis ?
+ - pontuação por subida/qnt de tijolos ?
+ - limite de tijolos/itens ?
+ - ordem de tijolos/itens pré-estabelecida ?
+ - régua lateral mostrando altura fictícia da torre ?
