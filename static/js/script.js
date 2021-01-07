@@ -71,12 +71,13 @@ $("#container").click(function(e){
     can_evoke = false;
 
     var brtype = next_brick;
-    atualizeNextBrick();
 
     var posX = parseInt(e.pageX) - ((window.innerWidth/2) - 350) - GRID/2;
     posX = `${posX - posX % GRID}px`;
 
     makeBrick(posX, "0", BrickType.typeConfig(brtype).body);
+    
+    atualizeNextBrick();
     var rcolor = `brcolor${parseInt(Math.random()*3)+1}`;
     var html = `<span class="brick move ${brtype} ${rcolor}" style="margin-left:${posX}" brid="${bricks.length}">BRICK</span>`;
     $(this).append(html);

@@ -17,12 +17,18 @@ html, body {
   float: left;
   position: absolute;
   text-align: center;
-  color: #621b1b;
+  color: #2c090966;
   font-weight: 400;
   font-size: 17px;
   font-family: monospace;
   margin-top: 0px;
   overflow: hidden;
+
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
 }
 
 .brick.brick1 {
