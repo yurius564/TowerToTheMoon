@@ -1,8 +1,10 @@
 const GRID    = 35;
-const GRAVITY = 200;
+const GRAVITY = 150;
 
-var gridtile = [];
-var canEvoke = true;
+var gridtile   = [];
+var can_evoke  = true;
+var bricks     = [];
+var next_brick = "";
 
 
 function clearGrid(){
@@ -20,54 +22,88 @@ function convertBrickCoord(x, y){
   return [vx, vy];
 }
 
-function makeBrick(x, y){
+function makeBrick(x, y, body){
   var [vx, vy] = convertBrickCoord(x, y);
-  gridtile[vx][vy]     = "X";
-  gridtile[(vx)+1][vy] = "X";
+  for(var p in body){
+    var pos = body[p];
+    gridtile[vx + pos[0]][vy + pos[1]] = "X";
+  }
 }
 
-function clearBrick(x, y){
+function clearBrick(x, y, body){
   var [vx, vy] = convertBrickCoord(x, y);
-  gridtile[vx][vy]     = "";
-  gridtile[(vx)+1][vy] = "";
+  for(var p in body){
+    var pos = body[p];
+    gridtile[vx + pos[0]][vy + pos[1]] = "";
+  }
 }
 
-function hasBrick(x, y){
+function hasBrick(x, y, collision){
   var [vx, vy] = convertBrickCoord(x, y);
-  return gridtile[vx][vy] == "X" || gridtile[vx+1][vy] == "X";
+
+  var hasflag = false;
+  for(var p in collision){
+    var pos = collision[p];
+    if(gridtile[vx + pos[0]][vy + pos[1]] != ""){
+      hasflag = true;
+      break;
+    }
+  }
+
+  return hasflag;
 }
 
+function atualizeNextBrick(){
+  next_brick = BrickType.randomType();
+
+  $(".brick.preview").attr("class", `brick preview ${next_brick}`);
+}
+
+
+$("#container").mousemove(function(e){
+  var posX = parseInt(e.pageX) - ((window.innerWidth/2) - 350) - GRID/2;
+  posX = `${posX - posX % GRID}px`;
+  $(".brick.preview").css("margin-left",posX);
+});
 
 $("#container").click(function(e){
-  if(canEvoke){
-    canEvoke = false;
-    var posX = parseInt(e.pageX) - ((window.innerWidth/2) - 350) - GRID;
+  if(can_evoke){
+    can_evoke = false;
+
+    var brtype = next_brick;
+    atualizeNextBrick();
+
+    var posX = parseInt(e.pageX) - ((window.innerWidth/2) - 350) - GRID/2;
     posX = `${posX - posX % GRID}px`;
 
-    makeBrick(posX, "0");
-    var rcolor = `br${parseInt(Math.random()*3)+1}`;
-    var html = `<span class="brick move ${rcolor}" style="margin-left:${posX}">BRICK</span>`;
+    makeBrick(posX, "0", BrickType.typeConfig(brtype).body);
+    var rcolor = `brcolor${parseInt(Math.random()*3)+1}`;
+    var html = `<span class="brick move ${brtype} ${rcolor}" style="margin-left:${posX}" brid="${bricks.length}">BRICK</span>`;
     $(this).append(html);
+
+    bricks.push(new Brick(brtype));
   }
 });
 
 $(window).ready(function(){
   clearGrid();
+  atualizeNextBrick();
 
   setInterval(function(){
-    canEvoke = true;
+    can_evoke = true;
 
     for(var b=0; b < $(".brick.move").length; b++){
       var tbrick = $($(".brick.move")[b]);
+      var vbrick = bricks[tbrick.attr("brid")];
 
       var alt = parseInt(tbrick.css('margin-top').replace("px",""));
       var afs = parseInt(tbrick.css('margin-left').replace("px",""));
 
       var newalt = alt+GRID;
-      if(!hasBrick(afs, newalt)){
+      if(!hasBrick(afs, newalt, BrickType.typeConfig(vbrick.type).collision)){
         tbrick.css('margin-top', `${newalt}px`);
-        clearBrick(afs, alt);
-        makeBrick(afs, newalt);
+        clearBrick(afs, alt, BrickType.typeConfig(vbrick.type).body);
+        makeBrick(afs, newalt, BrickType.typeConfig(vbrick.type).body);
       }
       
       if(alt+(GRID*2) > window.innerHeight){

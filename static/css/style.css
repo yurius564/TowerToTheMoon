@@ -16,25 +16,51 @@ html, body {
 .brick {
   float: left;
   position: absolute;
-  width: 64px;
-  height: 29px;
-  border: 3px outset #721b1b77;
-  background: linear-gradient(to top, #741e1e, brown);
   text-align: center;
   color: #621b1b;
-  line-height: 29px;
   font-weight: 400;
   font-size: 17px;
   font-family: monospace;
   margin-top: 0px;
+  overflow: hidden;
 }
 
-.brick.br1 { 
+.brick.brick1 {
+  line-height: 29px;
+  width: 64px;
+  height: 29px;
+  border: 3px outset #721b1b77;
   background: linear-gradient(to top, #741e1e, brown);
 }
-.brick.br2 { 
+
+.brick.brick2 {
+  line-height: 29px;
+  width: 29px;
+  height: 29px;
+  border: 3px outset #721b1b77;
+  background: linear-gradient(to top, #741e1e, brown);
+}
+
+.brick.brick3 {
+  line-height: 64px;
+  width: 64px;
+  height: 64px;
+  border: 3px outset #721b1b77;
+  background: linear-gradient(to top, #741e1e, brown);
+}
+
+.brick.brcolor1 { 
+  background: linear-gradient(to top, #741e1e, brown);
+}
+.brick.brcolor2 { 
   background: linear-gradient(to top, #862323, #bb3030);
 }
-.brick.br3 { 
+.brick.brcolor3 { 
   background: linear-gradient(to top, #5c1818, #8a2424);
+}
+
+.brick.preview {
+  border: white dashed 3px;
+  background: transparent;
+  color: transparent;
 }
