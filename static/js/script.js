@@ -1,17 +1,36 @@
-const GRID    = 35;
-const GRAVITY = 150;
-
 var gridtile   = [];
 var can_evoke  = true;
 var bricks     = [];
 var next_brick = "";
 
 
+function preConfigTiles(){
+  for(var cx in PRECONFIG){
+    for(var cy=PRECONFIG[cx].length; cy > PRECONFIG[cx].length - gridtile[cx].length; cy--){
+      if(PRECONFIG[cx][cy] != ""){
+        var diff = PRECONFIG[cx].length - gridtile[cx].length;
+        gridtile[cx][cy-diff] = PRECONFIG[cx][cy];
+        
+        switch(PRECONFIG[cx][cy]){
+          case "#":
+            $("#container").append(new Tile(cx, cy-diff, "ground").htmlobj());
+            break;
+          case "F":
+            $("#container").append(new Tile(cx, cy-diff, "kill").htmlobj());
+            break;
+        }
+      }
+    }
+  }
+}
+
 function clearGrid(){
   gridtile = new Array(20).fill('');
   for(g in gridtile){
-    gridtile[g] = new Array(parseInt(window.innerHeight/35)).fill("");
+    gridtile[g] = new Array(parseInt(window.innerHeight/35)+1).fill("");
   }
+
+  preConfigTiles();
 }
 
 function convertBrickCoord(x, y){
@@ -26,7 +45,7 @@ function makeBrick(x, y, body){
   var [vx, vy] = convertBrickCoord(x, y);
   for(var p in body){
     var pos = body[p];
-    gridtile[vx + pos[0]][vy + pos[1]] = "X";
+    if(gridtile[vx + pos[0]][vy + pos[1]] == "") gridtile[vx + pos[0]][vy + pos[1]] = "X";
   }
 }
 
@@ -38,16 +57,25 @@ function clearBrick(x, y, body){
   }
 }
 
-function hasBrick(x, y, collision){
-  var [vx, vy] = convertBrickCoord(x, y);
+function hasBrick(x, y, ny, vbrick, tbrick){
+  var collision = BrickType.typeConfig(vbrick.type).collision;
+  var [vx, vy] = convertBrickCoord(x, ny);
 
   var hasflag = false;
   for(var p in collision){
     var pos = collision[p];
-    if(gridtile[vx + pos[0]][vy + pos[1]] != ""){
-      hasflag = true;
-      break;
+    switch(gridtile[vx + pos[0]][vy + pos[1]]){
+      case "X":
+      case "#":
+        hasflag = true;
+        break;
+      case "F":
+        clearBrick(x, y, BrickType.typeConfig(vbrick.type).body);
+        tbrick.remove();
+        hasflag = true;
+        break;  
     }
+    if(hasflag) break;
   }
 
   return hasflag;
@@ -56,7 +84,7 @@ function hasBrick(x, y, collision){
 function atualizeNextBrick(){
   next_brick = BrickType.randomType();
 
-  $(".brick.preview").attr("class", `brick preview ${next_brick}`);
+  $(".brick.preview").attr("class", `tile brick preview ${next_brick}`);
 }
 
 
@@ -79,7 +107,7 @@ $("#container").click(function(e){
     
     atualizeNextBrick();
     var rcolor = `brcolor${parseInt(Math.random()*3)+1}`;
-    var html = `<span class="brick move ${brtype} ${rcolor}" style="margin-left:${posX}" brid="${bricks.length}">BRICK</span>`;
+    var html = `<span class="tile brick move ${brtype} ${rcolor}" style="margin-left:${posX}" brid="${bricks.length}">BRICK</span>`;
     $(this).append(html);
 
     bricks.push(new Brick(brtype));
@@ -101,7 +129,7 @@ $(window).ready(function(){
       var afs = parseInt(tbrick.css('margin-left').replace("px",""));
 
       var newalt = alt+GRID;
-      if(!hasBrick(afs, newalt, BrickType.typeConfig(vbrick.type).collision)){
+      if(!hasBrick(afs, alt, newalt, vbrick, tbrick)){
         tbrick.css('margin-top', `${newalt}px`);
         clearBrick(afs, alt, BrickType.typeConfig(vbrick.type).body);
         makeBrick(afs, newalt, BrickType.typeConfig(vbrick.type).body);

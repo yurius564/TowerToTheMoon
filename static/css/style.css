@@ -13,11 +13,10 @@ html, body {
   overflow: hidden;
 }
 
-.brick {
+.tile {
   float: left;
   position: absolute;
   text-align: center;
-  color: #2c090966;
   font-weight: 400;
   font-size: 17px;
   font-family: monospace;
@@ -31,6 +30,10 @@ html, body {
   user-select: none;
 }
 
+.brick {
+  color: #2c090966;
+}
+
 .brick.brick1 {
   line-height: 29px;
   width: 64px;
@@ -38,7 +41,6 @@ html, body {
   border: 3px outset #721b1b77;
   background: linear-gradient(to top, #741e1e, brown);
 }
-
 .brick.brick2 {
   line-height: 29px;
   width: 29px;
@@ -46,10 +48,16 @@ html, body {
   border: 3px outset #721b1b77;
   background: linear-gradient(to top, #741e1e, brown);
 }
-
 .brick.brick3 {
   line-height: 64px;
   width: 64px;
+  height: 64px;
+  border: 3px outset #721b1b77;
+  background: linear-gradient(to top, #741e1e, brown);
+}
+.brick.brick4 {
+  line-height: 64px;
+  width: 29px;
   height: 64px;
   border: 3px outset #721b1b77;
   background: linear-gradient(to top, #741e1e, brown);
@@ -69,4 +77,22 @@ html, body {
   border: white dashed 3px;
   background: transparent;
   color: transparent;
+}
+
+.tile.ground {
+  color: #1a1a1a66;
+  
+  line-height: 35px;
+  width: 35px;
+  height: 35px;
+  background: linear-gradient(to top, #737373, #a0a0a0);
+}
+
+.tile.kill {
+  color: #1a1a1a66;
+  
+  line-height: 35px;
+  width: 35px;
+  height: 35px;
+  background: #ee2020;
 }
