@@ -29,19 +29,30 @@ class BrickType {
         break;
       case 'brick3':
         body      = [[0,0],[1,0],[0,1],[1,1]];
-        collision = [[0,1],[1,1]];
+        collision = [[0,0],[1,0],[0,1],[1,1]];
         break;
       case 'brick4':
         body      = [[0,0],[0,1]];
-        collision = [[0,1]];
+        collision = [[0,0],[0,1]];
         break;
     }
 
     return {'body':body, 'collision':collision};
   }
 
+  static getTypes(type=null){
+    var types = [
+      {name:'brick1', perc:30 , width:2},
+      {name:'brick2', perc:10 , width:1},
+      {name:'brick3', perc:3  , width:2},
+      {name:'brick4', perc:20 , width:1}
+    ];
+    if(type != null) return types.filter(t => t.name == type)[0];
+    return types;
+  }
+
   static randomType(){
-    var types = [{name:'brick1',perc:30},{name:'brick2',perc:0},{name:'brick3',perc:0},{name:'brick4',perc:20}];
+    var types = this.getTypes();
     
     var sum    = types.reduce((x,i) => x + parseInt(i.perc),0);
     var r      = parseInt(Math.random()*sum);
@@ -60,6 +71,6 @@ class Tile {
   }
 
   htmlobj(){
-    return `<span class="tile ${this.type}" style="margin-left:${this.x}px;margin-top:${this.y}px"></span>`;
+    return `<span class="tile ${this.type}" style="left:${this.x}px;top:${this.y}px"></span>`;
   }
 }

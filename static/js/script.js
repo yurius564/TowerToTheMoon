@@ -4,10 +4,15 @@ var bricks     = [];
 var next_brick = "";
 var initial_y  = 0;
 
+var pressing_key = null;
 
+
+
+/* FUNCTIONS */
 function adjustScreenPosition(plus=0){
-  initial_y = plus? initial_y + plus: (window.innerHeight - 24000);
-  $("#container").css("margin-top",`${initial_y}px`);
+  initial_y = plus? initial_y + plus: ((window.innerHeight - 12460) - ((window.innerHeight - 12460)%35))-35;
+  if(initial_y > 0) initial_y = 0;
+  $("#container").css("top",`${initial_y}px`);
   $("#container").trigger("mousemove");
 }
 
@@ -68,11 +73,14 @@ function clearBrick(x, y, body){
   }
 }
 
-function hasBrick(x, y, ny, vbrick, tbrick){
+function hasBrick(x, y, nx, ny, vbrick, tbrick){
   var collision = BrickType.typeConfig(vbrick.type).collision;
-  var [vx, vy] = convertBrickCoord(x, ny);
+  var [vx, vy]  = convertBrickCoord(nx, ny);
+
+  clearBrick(x,y,BrickType.typeConfig(vbrick.type).body);
 
   var hasflag = false;
+  var toKill  = false;
   for(var p in collision){
     var pos = collision[p];
     switch(gridtile[vx + pos[0]][vy + pos[1]]){
@@ -80,16 +88,28 @@ function hasBrick(x, y, ny, vbrick, tbrick){
       case "#":
       case " ":
         hasflag = true;
-        if((parseInt(tbrick.css("margin-top").replace("px","")) + initial_y) < (window.innerHeight/2))
+        if((parseInt(tbrick.css("top").replace("px","")) + initial_y) < (window.innerHeight/2))
           adjustScreenPosition(35);
         break;
       case "F":
-        clearBrick(x, y, BrickType.typeConfig(vbrick.type).body);
-        tbrick.remove();
-        hasflag = true;
+        toKill = true;
         break; 
     }
     if(hasflag) break;
+  }
+  if(toKill && !hasflag){
+    tbrick.remove();
+    hasflag = true;
+  }
+  else{
+    makeBrick(x,y,BrickType.typeConfig(vbrick.type).body);
+  }
+
+  if(hasflag){
+    can_evoke = true;
+    $(".preview").removeClass("lock");
+
+    shake(200,5,10);
   }
 
   return hasflag;
@@ -97,58 +117,124 @@ function hasBrick(x, y, ny, vbrick, tbrick){
 
 function atualizeNextBrick(){
   next_brick = BrickType.randomType();
+  var is_lock = $(".brick.preview").hasClass("lock")? "lock":"";
+  $(".brick.preview").attr("class", `tile brick preview ${next_brick} ${is_lock}`);
+}
 
-  $(".brick.preview").attr("class", `tile brick preview ${next_brick}`);
+function moveBlock(mx){
+  var tbrick = $($(".brick.move")[0]);
+  if(!tbrick.length) return;
+  var vbrick = bricks[tbrick.attr("brid")];
+
+  var alt = parseInt(tbrick.css('top').replace("px",""));
+  var afs = parseInt(tbrick.css('left').replace("px",""));
+  
+  newafs = afs + (GRID*mx);
+  if(!hasBrick(afs, alt, newafs, alt, vbrick, tbrick)){
+    tbrick.css('left', `${newafs}px`);
+    clearBrick(afs, alt, BrickType.typeConfig(vbrick.type).body);
+    makeBrick(newafs, alt, BrickType.typeConfig(vbrick.type).body);
+
+    shake(100,10,5);
+  }
+}
+
+function shake(duration=500, force=20, amplitude=5){
+  var init_x = $("#container").css("left");
+  var init_y = $("#container").css("top");
+  var interv = setInterval(function(amp, x , y){
+      var dist = (Math.random()*amp) - amp/2;
+      $("#container").css("left", `${parseInt(x.replace("px","")) + dist}px`);
+      $("#container").css("top", `${parseInt(y.replace("px","")) + dist}px`);
+  },force, amplitude, init_x, init_y);
+  setTimeout(function(interv){
+      clearInterval(interv);
+      $("#container").css("left", 0);
+      $("#container").css("top",  initial_y);
+  }, duration, interv);
 }
 
 
+
+/* TRIGGERS */
 $("#container").mousemove(function(e){
-  var posX = parseInt(e.pageX) - ((window.innerWidth/2) - 350) - GRID/2;
+  var posX = parseInt(e.pageX) - ((window.innerWidth/2) - 350) - (GRID*(BrickType.getTypes(next_brick).width-1))/2;
   posX = `${posX - posX % GRID}px`;
-  $(".brick.preview").css("margin-left",posX);
-  $(".brick.preview").css("margin-top",`${Math.abs(initial_y)}px`);
+  $(".brick.preview").css("left",posX);
+  $(".brick.preview").css("top",`${Math.abs(initial_y)}px`);
 });
 
 $("#container").click(function(e){
   if(can_evoke){
     can_evoke = false;
+    $(".preview").addClass("lock");
 
     var brtype = next_brick;
 
-    var posX = parseInt(e.pageX) - ((window.innerWidth/2) - 350) - GRID/2;
+    var posX = parseInt(e.pageX) - ((window.innerWidth/2) - 350) - (GRID*(BrickType.getTypes(brtype).width-1))/2;
     posX = `${posX - posX % GRID}px`;
 
     makeBrick(posX, Math.abs(initial_y), BrickType.typeConfig(brtype).body);
     
     atualizeNextBrick();
-    var texture = `url("image/${brtype}-${parseInt(Math.random()*8)}.png")`;
-    var html = `<span class="tile brick move ${brtype}" style='margin-left:${posX};margin-top:${Math.abs(initial_y)}px;background:${texture}' brid="${bricks.length}"></span>`;
+    var texture = `url("image/${brtype}.png")`;
+    var rcolor  = parseInt(Math.random()*10);
+    rcolor      = rcolor - rcolor*36;
+    var filter  = `sepia(${parseInt(Math.random()*15)}) hue-rotate(${rcolor}deg) saturate(${parseInt(Math.random()*5)+3});`;
+    var html = `<span class="tile brick move ${brtype}"
+                  style='left:${posX};top:${Math.abs(initial_y)}px;background:${texture};filter:${filter}'
+                  brid="${bricks.length}">
+                </span>`;
     $(this).append(html);
 
     bricks.push(new Brick(brtype));
   }
 });
 
+$(window).keydown(function(e){
+  if(pressing_key == null) {
+    pressing_key = keycode = e.keyCode || e.which;
+    switch(pressing_key){
+      case 37:
+      case 65:
+        moveBlock(-1);
+        break;
+      case 39:
+      case 68:
+        moveBlock(1);
+        break;
+    }
+  }
+});
+
+$(window).keyup(function(){
+  pressing_key = null;
+});
+
+
+
+/* WAKE UP */
 $(window).ready(function(){
   clearGrid();
   atualizeNextBrick();
   adjustScreenPosition();
 
   setInterval(function(){
-    can_evoke = true;
-
     for(var b=0; b < $(".brick.move").length; b++){
       var tbrick = $($(".brick.move")[b]);
       var vbrick = bricks[tbrick.attr("brid")];
 
-      var alt = parseInt(tbrick.css('margin-top').replace("px",""));
-      var afs = parseInt(tbrick.css('margin-left').replace("px",""));
+      var alt = parseInt(tbrick.css('top').replace("px",""));
+      var afs = parseInt(tbrick.css('left').replace("px",""));
 
       var newalt = alt+GRID;
-      if(!hasBrick(afs, alt, newalt, vbrick, tbrick)){
-        tbrick.css('margin-top', `${newalt}px`);
+      if(!hasBrick(afs, alt, afs, newalt, vbrick, tbrick)){
+        tbrick.css('top', `${newalt}px`);
         clearBrick(afs, alt, BrickType.typeConfig(vbrick.type).body);
         makeBrick(afs, newalt, BrickType.typeConfig(vbrick.type).body);
+      }
+      else {
+        tbrick.removeClass("move");
       }
       
       if(alt+(GRID*2) > $("#container").css("height")){
