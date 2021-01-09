@@ -3,14 +3,24 @@ html, body {
   margin: 0;
   padding: 0;
 }
+body {
+  overflow-y: scroll;
+}
 
 #container {
   margin-left: 50%;
+  margin-top: -24000px;
   transform: translateX(-50%);
   width: 700px;
-  height: 100vh;
-  background: linear-gradient(to top, white, white, #72c1f6);
+
+  height: 24000px;
+  position: absolute;
+  /* background: linear-gradient(to top, white, white, #72c1f6); */
+  background: url("../../image/map.png");
+  filter: blur(50%);
   overflow: hidden;
+
+  transition: linear margin-top 0.3s;
 }
 
 .tile {
@@ -38,43 +48,33 @@ html, body {
   line-height: 29px;
   width: 64px;
   height: 29px;
-  border: 3px outset #721b1b77;
-  background: linear-gradient(to top, #741e1e, brown);
+  border: 3px outset transparent;
+  /* background: linear-gradient(to top, #741e1e, brown); */
 }
 .brick.brick2 {
   line-height: 29px;
   width: 29px;
   height: 29px;
-  border: 3px outset #721b1b77;
-  background: linear-gradient(to top, #741e1e, brown);
+  border: 3px outset transparent;
+  /* background: linear-gradient(to top, #741e1e, brown); */
 }
 .brick.brick3 {
   line-height: 64px;
   width: 64px;
   height: 64px;
-  border: 3px outset #721b1b77;
-  background: linear-gradient(to top, #741e1e, brown);
+  border: 3px outset transparent;
+  /* background: linear-gradient(to top, #741e1e, brown); */
 }
 .brick.brick4 {
   line-height: 64px;
   width: 29px;
   height: 64px;
-  border: 3px outset #721b1b77;
-  background: linear-gradient(to top, #741e1e, brown);
-}
-
-.brick.brcolor1 { 
-  background: linear-gradient(to top, #741e1e, brown);
-}
-.brick.brcolor2 { 
-  background: linear-gradient(to top, #862323, #bb3030);
-}
-.brick.brcolor3 { 
-  background: linear-gradient(to top, #5c1818, #8a2424);
+  border: 3px outset transparent;
+  /* background: linear-gradient(to top, #741e1e, brown); */
 }
 
 .brick.preview {
-  border: white dashed 3px;
+  border: black dashed 3px;
   background: transparent;
   color: transparent;
 }
@@ -82,9 +82,10 @@ html, body {
 .tile.ground {
   color: #1a1a1a66;
   
-  line-height: 35px;
-  width: 35px;
-  height: 35px;
+  line-height: 29px;
+  width: 29px;
+  height: 29px;
+  border: 3px outset #a3a3a377;
   background: linear-gradient(to top, #737373, #a0a0a0);
 }
 
@@ -92,7 +93,17 @@ html, body {
   color: #1a1a1a66;
   
   line-height: 35px;
+  width: 33px;
+  height: 33px;
+  border-radius: 2px;
+  background: #ee202066;
+}
+
+.tile.void {
+  color: #1a1a1a66;
+  
+  line-height: 35px;
   width: 35px;
   height: 35px;
-  background: #ee2020;
+  background: transparent;
 }

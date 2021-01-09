@@ -41,7 +41,7 @@ class BrickType {
   }
 
   static randomType(){
-    var types = [{name:'brick1',perc:30},{name:'brick2',perc:5},{name:'brick3',perc:1},{name:'brick4',perc:15}];
+    var types = [{name:'brick1',perc:30},{name:'brick2',perc:0},{name:'brick3',perc:0},{name:'brick4',perc:20}];
     
     var sum    = types.reduce((x,i) => x + parseInt(i.perc),0);
     var r      = parseInt(Math.random()*sum);
@@ -60,6 +60,6 @@ class Tile {
   }
 
   htmlobj(){
-    return `<span class="tile ${this.type}" style="margin-left:${this.x}px;margin-top:${this.y}px">${this.type}</span>`;
+    return `<span class="tile ${this.type}" style="margin-left:${this.x}px;margin-top:${this.y}px"></span>`;
   }
 }

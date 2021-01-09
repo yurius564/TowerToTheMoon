@@ -11,6 +11,8 @@ for y in range(img.size[1]):
           gridmap[x][y] = "#"
         elif pix[x,y] == (255,0,0):
           gridmap[x][y] = "F"
+        elif pix[x,y] == (0,255,0):
+          gridmap[x][y] = " "
         else:
           gridmap[x][y] = ""
 
