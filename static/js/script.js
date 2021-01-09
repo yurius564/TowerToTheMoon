@@ -9,8 +9,13 @@ var pressing_key = null;
 
 
 /* FUNCTIONS */
-function adjustScreenPosition(plus=0){
-  initial_y = plus? initial_y + plus: ((window.innerHeight - 12460) - ((window.innerHeight - 12460)%35))-35;
+function adjustScreenPosition(plus=0, mid=false){
+  if(mid){
+    initial_y = parseInt($(`.brick[brid="${bricks.length-1}"]`).css("top").replace("px","")) - window.innerHeight/2;
+    initial_y -= (initial_y%GRID);
+    initial_y *= -1;
+  }
+  else initial_y = plus? initial_y + plus: ((window.innerHeight - 12460) - ((window.innerHeight - 12460) % GRID)) - GRID;
   if(initial_y > 0) initial_y = 0;
   $("#container").css("top",`${initial_y}px`);
   $("#container").trigger("mousemove");
@@ -58,10 +63,18 @@ function convertBrickCoord(x, y){
 }
 
 function makeBrick(x, y, body){
-  var [vx, vy] = convertBrickCoord(x, y);
-  for(var p in body){
-    var pos = body[p];
-    if(gridtile[vx + pos[0]][vy + pos[1]] == "") gridtile[vx + pos[0]][vy + pos[1]] = "X";
+  try{
+    var [vx, vy] = convertBrickCoord(x, y);
+    for(var p in body){
+      var pos = body[p];
+      if(gridtile[vx + pos[0]][vy + pos[1]] == "") gridtile[vx + pos[0]][vy + pos[1]] = "X";
+    }
+    return true;
+  }
+  catch{
+    can_evoke = true;
+    $(".preview").removeClass("lock");
+    return false;
   }
 }
 
@@ -89,7 +102,7 @@ function hasBrick(x, y, nx, ny, vbrick, tbrick){
       case " ":
         hasflag = true;
         if((parseInt(tbrick.css("top").replace("px","")) + initial_y) < (window.innerHeight/2))
-          adjustScreenPosition(35);
+          adjustScreenPosition(0, true);
         break;
       case "F":
         toKill = true;
@@ -174,7 +187,7 @@ $("#container").click(function(e){
     var posX = parseInt(e.pageX) - ((window.innerWidth/2) - 350) - (GRID*(BrickType.getTypes(brtype).width-1))/2;
     posX = `${posX - posX % GRID}px`;
 
-    makeBrick(posX, Math.abs(initial_y), BrickType.typeConfig(brtype).body);
+    if(!makeBrick(posX, Math.abs(initial_y), BrickType.typeConfig(brtype).body)) return;
     
     atualizeNextBrick();
     var texture = `url("image/${brtype}.png")`;

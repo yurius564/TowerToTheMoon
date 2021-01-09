@@ -28,7 +28,10 @@ body {
   height: 12460px;
   position: absolute;
   /* background: linear-gradient(to top, white, white, #72c1f6); */
-  background: url("../../image/map.png");
+  background: url("../../image/map2.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  image-rendering: pixelated;
   filter: blur(50%);
   overflow: hidden;
 
