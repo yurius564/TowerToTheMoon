@@ -65,6 +65,15 @@ function convertBrickCoord(x, y){
 function makeBrick(x, y, body){
   try{
     var [vx, vy] = convertBrickCoord(x, y);
+    var cant_evoke = false;
+    for(var p in body){
+      var pos = body[p];
+      if(gridtile[vx + pos[0]][vy + pos[1]] != ""){
+        cant_evoke = true;
+        break;
+      }
+    }
+    if(cant_evoke) return false;
     for(var p in body){
       var pos = body[p];
       if(gridtile[vx + pos[0]][vy + pos[1]] == "") gridtile[vx + pos[0]][vy + pos[1]] = "X";
@@ -72,8 +81,6 @@ function makeBrick(x, y, body){
     return true;
   }
   catch{
-    can_evoke = true;
-    $(".preview").removeClass("lock");
     return false;
   }
 }
@@ -187,7 +194,11 @@ $("#container").click(function(e){
     var posX = parseInt(e.pageX) - ((window.innerWidth/2) - 350) - (GRID*(BrickType.getTypes(brtype).width-1))/2;
     posX = `${posX - posX % GRID}px`;
 
-    if(!makeBrick(posX, Math.abs(initial_y), BrickType.typeConfig(brtype).body)) return;
+    if(!makeBrick(posX, Math.abs(initial_y), BrickType.typeConfig(brtype).body)){
+      can_evoke = true;
+      $(".preview").removeClass("lock");
+      return;
+    }
     
     atualizeNextBrick();
     var texture = `url("image/${brtype}.png")`;
