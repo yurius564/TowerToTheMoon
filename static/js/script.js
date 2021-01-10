@@ -5,10 +5,56 @@ var next_brick = "";
 var initial_y  = 0;
 
 var pressing_key = null;
-
+var on_pause     = true;
+var pause_state  = 0;
+var brick_amount = 50;
+var musicon      = false;
 
 
 /* FUNCTIONS */
+function checkWin(brick_height){
+  return brick_height < GRID*3;
+}
+
+function resetGame(){
+  brick_amount = 20;
+  can_evoke = true;
+  bricks = [];
+
+  $(".tile:not(.preview)").remove();
+  $(".brick:not(.preview)").remove();
+  
+  clearGrid();
+  atualizeNextBrick();
+  adjustScreenPosition();
+  onPause(on_pause);
+  setMenu();
+  amountBricks(brick_amount);
+}
+
+function amountBricks(amm=brick_amount-1){
+  brick_amount = amm;
+  $("#brick-counter #amount").text(brick_amount);
+  return brick_amount;
+}
+
+function onPause(state=!on_pause){
+  on_pause = state;
+  if(on_pause){
+    $("#container").addClass("on-pause");
+    $("#menu-box").addClass("menu-on");
+  }
+  else {
+    $("#container").removeClass("on-pause");
+    $("#menu-box").removeClass("menu-on");
+  }
+}
+
+function setMenu(menu=0){
+  $(".box").addClass("disabled");
+  $(`.box[menu="${menu}"]`).removeClass("disabled");
+}
+
 function adjustScreenPosition(plus=0, mid=false){
   if(mid){
     initial_y = parseInt($(`.brick[brid="${bricks.length-1}"]`).css("top").replace("px","")) - window.innerHeight/2;
@@ -37,6 +83,9 @@ function preConfigTiles(){
             break;
           case " ":
             $("#container").append(new Tile(cx, cy-diff, "void").htmlobj());
+            break;
+          case "G":
+            $("#container").append(new Tile(cx, cy-diff, "gold").htmlobj());
             break;
         }
       }
@@ -113,7 +162,17 @@ function hasBrick(x, y, nx, ny, vbrick, tbrick){
         break;
       case "F":
         toKill = true;
-        break; 
+        break;
+      case "G":
+        amountBricks(brick_amount + 20);
+        gridtile[vx + pos[0]][vy + pos[1]] = "";
+        for(var g=0; g < $(".tile.gold").length; g++){
+          var gold = $($(".tile.gold")[g]);
+          if(gold.css("left").replace("px","") == (vx + pos[0])*GRID && gold.css("top").replace("px","") == (vy + pos[1])*GRID){
+            gold.remove();
+            break;
+          }
+        }
     }
     if(hasflag) break;
   }
@@ -130,6 +189,17 @@ function hasBrick(x, y, nx, ny, vbrick, tbrick){
     $(".preview").removeClass("lock");
 
     shake(200,5,10);
+
+    if(checkWin(y)){
+      setMenu(1);
+      onPause(true);
+      return;
+    }
+
+    if(brick_amount == 0){
+      setMenu(-1);
+      onPause(true);
+    }
   }
 
   return hasflag;
@@ -200,6 +270,7 @@ $("#container").click(function(e){
       return;
     }
     
+    amountBricks();
     atualizeNextBrick();
     var texture = `url("image/${brtype}.png")`;
     var rcolor  = parseInt(Math.random()*10);
@@ -239,9 +310,7 @@ $(window).keyup(function(){
 
 /* WAKE UP */
 $(window).ready(function(){
-  clearGrid();
-  atualizeNextBrick();
-  adjustScreenPosition();
+  resetGame();
 
   setInterval(function(){
     for(var b=0; b < $(".brick.move").length; b++){
@@ -267,4 +336,14 @@ $(window).ready(function(){
     }
 
   }, GRAVITY);
+});
+
+$(window).click(function(){
+  if(musicon) return;
+
+  var music = new Audio("sound/8_Bit_Retro_Funk_-David_Renda.mp3");
+  music.volume = 0.3;
+  music.loop = true;
+  music.play();
+  musicon = true;
 });
